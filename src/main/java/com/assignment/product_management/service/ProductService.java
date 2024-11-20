@@ -4,6 +4,9 @@ import com.assignment.product_management.entity.Product;
 import com.assignment.product_management.model.ProductRequest;
 import com.assignment.product_management.model.ProductResponse;
 import com.assignment.product_management.repository.ProductRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,6 +26,7 @@ public class ProductService {
       this.validationService = validationService;
    }
    
+   @CacheEvict(value = "products", allEntries = true)
    public ProductResponse addProduct (ProductRequest request) {
       validationService.validate(request);
       Product product = request.toEntity();
@@ -54,6 +58,7 @@ public class ProductService {
         return toProductResponse(product);
     }
     
+    @CachePut(value = "products", key = "#id")
     public ProductResponse updateProduct(Long id, ProductRequest request) {
         validationService.validate(request);
         Product product = productRepository.findById(id)
@@ -68,12 +73,14 @@ public class ProductService {
         return toProductResponse(product);
     }
     
+    @CacheEvict(value = "products", allEntries = true)
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
              .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product data not found"));
         productRepository.delete(product);
     }
     
+    @Cacheable(value = "products", key = "#name")
     public List<ProductResponse> searchProduct(String name) {
         List<Product> products = productRepository.findByName(name);
         return products.stream()
