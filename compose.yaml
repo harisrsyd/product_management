@@ -1,4 +1,18 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '8989:8989'
+    environment:
+      SPRING_DATASOURCE_URL: 'jdbc:postgresql://postgres:5432/product_maagement'
+      SPRING_DATASOURCE_USERNAME: 'postgres'
+      SPRING_DATASOURCE_PASSWORD: 'gajah'
+      SPRING_REDIS_HOST: 'redis'
+    depends_on:
+      - postgres
+      - redis
   postgres:
     image: 'postgres:latest'
     environment:
@@ -6,8 +20,8 @@ services:
       - 'POSTGRES_PASSWORD=gajah'
       - 'POSTGRES_USER=postgres'
     ports:
-      - '5432'
+      - '5432:5432'
   redis:
     image: 'redis:latest'
     ports:
-      - '6379'
+      - '6379:6379'
