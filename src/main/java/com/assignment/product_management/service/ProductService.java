@@ -27,9 +27,13 @@ public class ProductService {
    }
    
    @CacheEvict(value = "products", allEntries = true)
-   public ProductResponse addProduct (ProductRequest request) {
+   public ProductResponse addProduct(ProductRequest request) {
       validationService.validate(request);
-      Product product = request.toEntity();
+      Product product = new Product();
+      product.setName(request.getName());
+      product.setPrice(request.getPrice());
+      product.setCategory(request.getCategory());
+      product.setDescription(request.getDescription());
       productRepository.save(product);
       
       return toProductResponse(product);
@@ -37,54 +41,54 @@ public class ProductService {
    
    public ProductResponse toProductResponse(Product product) {
       return ProductResponse.builder()
-            .id(product.getId())
-            .name(product.getName())
-            .price(product.getPrice())
-            .category(product.getCategory())
-            .description(product.getDescription())
-            .build();
+          .id(product.getId())
+          .name(product.getName())
+          .price(product.getPrice())
+          .category(product.getCategory())
+          .description(product.getDescription())
+          .build();
    }
    
    public List<ProductResponse> getAllProducts() {
       List<Product> products = productRepository.findAll();
       return products.stream()
-            .map(this::toProductResponse)
-            .collect(Collectors.toList());
+          .map(this::toProductResponse)
+          .collect(Collectors.toList());
    }
    
-    public ProductResponse getProduct(Long id) {
-        Product product = productRepository.findById(id)
-             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product data not found"));
-        return toProductResponse(product);
-    }
-    
-    @CachePut(value = "products", key = "#id")
-    public ProductResponse updateProduct(Long id, ProductRequest request) {
-        validationService.validate(request);
-        Product product = productRepository.findById(id)
-             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product data not found"));
-        product.setName(request.getName());
-        product.setPrice(request.getPrice());
-        product.setCategory(request.getCategory());
-        product.setDescription(request.getDescription());
-        
-        productRepository.save(product);
-        
-        return toProductResponse(product);
-    }
-    
-    @CacheEvict(value = "products", allEntries = true)
-    public void deleteProduct(Long id) {
-        Product product = productRepository.findById(id)
-             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product data not found"));
-        productRepository.delete(product);
-    }
-    
-    @Cacheable(value = "products", key = "#name")
-    public List<ProductResponse> searchProduct(String name) {
-        List<Product> products = productRepository.findByName(name);
-        return products.stream()
-             .map(this::toProductResponse)
-             .collect(Collectors.toList());
-    }
+   public ProductResponse getProduct(Long id) {
+      Product product = productRepository.findById(id)
+          .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product data not found"));
+      return toProductResponse(product);
+   }
+   
+   @CachePut(value = "products", key = "#id")
+   public ProductResponse updateProduct(Long id, ProductRequest request) {
+      validationService.validate(request);
+      Product product = productRepository.findById(id)
+          .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product data not found"));
+      product.setName(request.getName());
+      product.setPrice(request.getPrice());
+      product.setCategory(request.getCategory());
+      product.setDescription(request.getDescription());
+      
+      productRepository.save(product);
+      
+      return toProductResponse(product);
+   }
+   
+   @CacheEvict(value = "products", allEntries = true)
+   public void deleteProduct(Long id) {
+      Product product = productRepository.findById(id)
+          .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product data not found"));
+      productRepository.delete(product);
+   }
+   
+   @Cacheable(value = "products", key = "#name")
+   public List<ProductResponse> searchProduct(String name) {
+      List<Product> products = productRepository.findByName(name);
+      return products.stream()
+          .map(this::toProductResponse)
+          .collect(Collectors.toList());
+   }
 }

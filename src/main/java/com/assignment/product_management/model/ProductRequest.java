@@ -1,7 +1,7 @@
 package com.assignment.product_management.model;
 
-import com.assignment.product_management.entity.Product;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +18,7 @@ public class ProductRequest {
    @Size(max = 100)
    private String name;
    
-   @NotBlank
+   @NotNull
    private Double price;
    
    @NotBlank
@@ -26,13 +26,4 @@ public class ProductRequest {
    private String category;
    
    private String description;
-   
-   public Product toEntity() {
-      return Product.builder()
-            .name(name)
-            .price(price)
-            .category(category)
-            .description(description)
-            .build();
-   }
 }
